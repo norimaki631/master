@@ -23,7 +23,7 @@ from PIL import Image
 
 import time
 
-# import math
+import math
 
 #Initialize face detector and shape predictor
 detector = dlib.get_frontal_face_detector()
@@ -31,30 +31,31 @@ landmark_predictor = dlib.shape_predictor('model/shape_predictor_68_face_landmar
 
 np.random.seed(1234)
 
-cap = cv2.VideoCapture(0)
+import mss
 
+def SCT(bbox):
+    with mss.mss() as sct:
+        img = sct.grab(bbox)
+        img = np.asarray(img)
+        img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
+    return img
 
 while True:
     # 開始時間
     start = time.time()
-    
-    # read frame buffer from video
-    ret, original = cap.read()
-    original = cv2.resize(original, (int(original.shape[1]*0.5), int(original.shape[0]*0.5)))
+
+    # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する ※上のタブも入らないように！！！
+    # (Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
+    original = SCT((1400, 200, 1900, 450))
     image = torch.from_numpy(original).to(device)
-    # height, width, _ = image.shape
 
-    if not ret:
-        cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-        continue
-
-    # print(height, width)
+    # [TO DO?]指定したらコメントアウト
+    height, width, _ = image.shape
 
     # detect faces
     faces = detector(original)
 
     #例外処理　顔が検出されなかった時
-
     if len(faces) == 0:
         print('no faces')
         aug1 = original
@@ -65,28 +66,22 @@ while True:
         dlib_shape = landmark_predictor(original,face)
         landmark = np.array([[p.x, p.y] for p in dlib_shape.parts()])
 
-        # for s in landmark:
-        #     cv2.circle(img, center=tuple(s), radius=1, color=(255, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-
-        # cv2.circle(image, center=landmark[48], radius=1, color=(255, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-
         for j in range(68):
             landmark[j][0], landmark[j][1] = landmark[j][1], landmark[j][0]
-
         
         x = landmark[57][0] - landmark[66][0]
 
         p_array = [landmark[48], landmark[49], landmark[50], landmark[51], landmark[52], landmark[53], 
             landmark[54], landmark[55], landmark[56], landmark[57], landmark[58], landmark[59]]
         
+        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
         p_array_append = p_array.append
-        for m in range(4):
-            p_array_append([240, m * 100])
+        for m in range(math.ceil(height/100)):
+            p_array_append([width, m * 100])
 
-
-        for n in range(3):
-            p_array_append([n * 100, 320])
-
+        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
+        for n in range(math.ceil(width/100)):
+            p_array_append([n * 100, height])
 
         a = landmark[48] + np.array([-3*x/4, -2*x/5])
         b = landmark[49] + np.array([-3*x/8, -x/10])
@@ -103,19 +98,22 @@ while True:
                 
         q_array = [a, b, c, d, e, f, g, h, i, j, k, l]
 
+        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
         q_array_append = q_array.append
-        for m in range(4):
-            q_array_append([240, m * 100])
+        for m in range(math.ceil(height/100)):
+            q_array_append([width, m * 100])
 
-        for n in range(3):
-            q_array_append([n * 100, 320])
+        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
+        for n in range(math.ceil(width/100)):
+            q_array_append([n * 100, height])
 
         p1 = torch.from_numpy(np.array(p_array)).to(device)
         q1 = torch.from_numpy(np.array(q_array)).to(device)
 
         # Define deformation grid
-        gridX = torch.arange(320, dtype=torch.int16).to(device)
-        gridY = torch.arange(240, dtype=torch.int16).to(device)
+        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
+        gridX = torch.arange(width, dtype=torch.int16).to(device)
+        gridY = torch.arange(height, dtype=torch.int16).to(device)
         vy, vx = torch.meshgrid(gridX, gridY)
         # !!! Pay attention !!!: the shape of returned tensors are different between numpy.meshgrid and torch.meshgrid
         vy, vx = vy.transpose(0, 1), vx.transpose(0, 1)
@@ -134,7 +132,6 @@ while True:
     # Time elapsed
     seconds = end - start
     print("経過時間: {0} seconds".format(seconds))
-
 
     if cv2.waitKey(1) == ord('q'):
         sys.exit(1)
