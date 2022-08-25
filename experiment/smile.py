@@ -45,9 +45,9 @@ while True:
     start = time.time()
 
     # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する ※上のタブも入らないように！！！
-    # この数値はpcAにおいてピン止めせずに被験者を右に寄せたウィンドウを右のモニターの右上端に寄せる
+    # この数値はpcAにおいてピン止めして被験者を右に寄せたウィンドウを右のモニターの右上端に寄せる
     # (Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
-    original = SCT((1450, 185, 1900, 410))
+    original = SCT((980, 135, 1600, 450))
     image = torch.from_numpy(original).to(device)
 
     # [TO DO?]指定したらコメントアウト
