@@ -29,7 +29,7 @@ while True:
     # [TO DO]ウィンドウサイズを抽出して絶対値で指定する ※上のタブも入らないように！！！
     # この数値はpcBにおいてピン止めして右のモニターの右上端に寄せる
     # (Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
-    original_sct = SCT((2025, -80, 2420, 135))
+    original_sct = SCT((2025, -90, 2420, 110))
     original = np.asarray(original_sct)
 
     original = cv2.cvtColor(original, cv2.COLOR_RGBA2RGB)
