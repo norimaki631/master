@@ -48,6 +48,7 @@ while True:
     # この数値はpcAにおいてピン止めして被験者を右に寄せたウィンドウを右のモニターの右上端に寄せる
     # (Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
     original = SCT((980, 135, 1600, 450))
+    original = cv2.resize(original, (int(original.shape[1]*0.7), int(original.shape[0]*0.7)))
     image = torch.from_numpy(original).to(device)
 
     # [TO DO?]指定したらコメントアウト
