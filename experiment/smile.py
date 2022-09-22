@@ -85,18 +85,18 @@ while True:
         for n in range(math.ceil(width/100)):
             p_array_append([n * 100, height])
 
-        a = landmark[48] + np.array([-3*x/4, -2*x/5])
-        b = landmark[49] + np.array([-3*x/8, -x/10])
-        c = landmark[50] + np.array([-3*x/8, 0])
-        d = landmark[51] + np.array([-3*x/8, 0])
-        e = landmark[52] + np.array([-3*x/8, 0])
-        f = landmark[53] + np.array([-3*x/8, x/10])
-        g = landmark[54] + np.array([-3*x/4, 2*x/5])
-        h = landmark[55] + np.array([-3*x/10, 0])
-        i = landmark[56] + np.array([-3*x/10, 0])
-        j = landmark[57] + np.array([-3*x/10, 0])
-        k = landmark[58] + np.array([-3*x/10, 0])
-        l = landmark[59] + np.array([-3*x/10, 0])
+        a = landmark[48] + np.array([-x/2, -2*x/5])
+        b = landmark[49] + np.array([-x/4, -x/10])
+        c = landmark[50] + np.array([-x/4, 0])
+        d = landmark[51] + np.array([-x/4, 0])
+        e = landmark[52] + np.array([-x/4, 0])
+        f = landmark[53] + np.array([-x/4, x/10])
+        g = landmark[54] + np.array([-x/2, 2*x/5])
+        h = landmark[55] + np.array([-x/5, 0])
+        i = landmark[56] + np.array([-x/5, 0])
+        j = landmark[57] + np.array([-x/5, 0])
+        k = landmark[58] + np.array([-x/5, 0])
+        l = landmark[59] + np.array([-x/5, 0])
                 
         q_array = [a, b, c, d, e, f, g, h, i, j, k, l]
 
