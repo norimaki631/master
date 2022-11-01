@@ -7,7 +7,7 @@ import openpyxl
 book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 sheet = book["test"]
 
-name = "hina"
+name = "1-1"
 
 capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
@@ -106,6 +106,7 @@ while capture.isOpened():
             print("left:" + str(left_average))
             print("right:" + str(right_average))
             maxRow = sheet.max_row + 1
+            print(maxRow)
             sheet.cell(maxRow,1).value = name
             sheet.cell(maxRow,2).value = left_average
             sheet.cell(maxRow,3).value = right_average
@@ -114,6 +115,12 @@ while capture.isOpened():
     else:
         print("left:" + str(left_average))
         print("right:" + str(right_average))
+        maxRow = sheet.max_row + 1
+        print(maxRow)
+        sheet.cell(maxRow,1).value = name
+        sheet.cell(maxRow,2).value = left_average
+        sheet.cell(maxRow,3).value = right_average
+        book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
         break
 
 capture.release()
