@@ -7,9 +7,9 @@ import openpyxl
 book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 sheet = book["test"]
 
-name = "horiko"
+name = "test"
 
-capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\%s.mp4" % name)
+capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\%s.mkv" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)#180 240  360 405
 
