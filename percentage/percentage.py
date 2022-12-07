@@ -8,7 +8,7 @@ import openpyxl
 book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 sheet = book["test2"]
 
-name = "shintaki"
+name = "hina"
 
 # PC2の場合mp4→mkv
 capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\%s.mp4" % name)
@@ -60,7 +60,7 @@ while capture.isOpened():
                         roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
                 #cv2.imshow("roi_gray2",roi_gray)  #確認のため輝度を正規化した画像を表示
 
-                smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.1, minNeighbors=0, minSize=(20, 20))#笑顔識別
+                smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.1, minNeighbors=10, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
                     # サイズを考慮した笑顔認識
                     smile_neighbors = len(smiles)
