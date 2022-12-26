@@ -6,11 +6,12 @@ import openpyxl
 
 # PC3の場合
 book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
-sheet = book["result"]
+sheet = book["result2"]
 
-name = "118-117"
+name = "hina"
 
-capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
+# capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
+capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\yobi\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)#180 240  360 405
 
@@ -30,6 +31,8 @@ right_sum = 0
 frame = 0
 left_face_count = 0
 right_face_count = 0
+left_smile_count = 0
+right_smile_count = 0
 
 while capture.isOpened():
     ret, img = capture.read()
@@ -45,7 +48,8 @@ while capture.isOpened():
             if x < width/2:
                 cv2.rectangle(img,(x,y),(x+w,y+h),(255, 0, 0),2) # blue
                 #Gray画像から，顔領域を切り出す．
-                roi_gray = gray[y:y+h, x:x+w] 
+                roi_gray = gray[y:y+h, x:x+w]
+                left_face_count += 1
 
                 #サイズを縮小
                 roi_gray = cv2.resize(roi_gray,(100,100))
@@ -57,30 +61,31 @@ while capture.isOpened():
                 for index1, item1 in enumerate(roi_gray):
                     for index2, item2 in enumerate(item1) :
                         roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
-                #cv2.imshow("roi_gray2",roi_gray)  #確認のため輝度を正規化した画像を表示
+                # cv2.imshow("roi_gray12",roi_gray)  #確認のため輝度を正規化した画像を表示
 
                 smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.1, minNeighbors=10, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
+                    print("左の笑顔を認識したよ")
+                    left_smile_count += 1
                     # サイズを考慮した笑顔認識
                     smile_neighbors = len(smiles)
                     #print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
                     LV = 2/100
                     left_intensityZeroOne = smile_neighbors  * LV 
-                    if left_intensityZeroOne > 1.0: left_intensityZeroOne = 1.0 
+                    if left_intensityZeroOne > 1.0: left_intensityZeroOne = 1.0
                     # print(intensityZeroOne) #確認のため強度を出力
                     left_sum += left_intensityZeroOne
                     left_average = left_sum / i
                     i += 1
                     for(sx,sy,sw,sh) in smiles:
                         cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-left_intensityZeroOne), 0, 255*left_intensityZeroOne),2)#red
-
-                left_face_count += 1
-
+                        
             # 右の人の顔の計算
             else:
                 cv2.rectangle(img,(x,y),(x+w,y+h),(255, 0, 0),2) # blue
                 #Gray画像から，顔領域を切り出す．
                 roi_gray = gray[y:y+h, x:x+w] 
+                right_face_count += 1
 
                 #サイズを縮小
                 roi_gray = cv2.resize(roi_gray,(100,100))
@@ -92,10 +97,11 @@ while capture.isOpened():
                 for index1, item1 in enumerate(roi_gray):
                     for index2, item2 in enumerate(item1) :
                         roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
-                #cv2.imshow("roi_gray2",roi_gray)  #確認のため輝度を正規化した画像を表示
+                # cv2.imshow("roi_gray2",roi_gray)  #確認のため輝度を正規化した画像を表示
 
                 smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.1, minNeighbors=0, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
+                    right_smile_count += 1
                     # サイズを考慮した笑顔認識
                     smile_neighbors = len(smiles)
                     #print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
@@ -109,9 +115,8 @@ while capture.isOpened():
                     for(sx,sy,sw,sh) in smiles:
                         cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-right_intensityZeroOne), 0, 255*right_intensityZeroOne),2)#red                
 
-                right_face_count += 1
-
         cv2.imshow('img',img)
+
         # key Operation
         key = cv2.waitKey(5) 
         if key ==27 or key ==ord('q'): #escまたはeキーで終了
@@ -132,21 +137,26 @@ while capture.isOpened():
         sheet.cell(maxRow,1).value = name
         sheet.cell(maxRow,2).value = left_average
         sheet.cell(maxRow,3).value = left_face_count*100/frame
-        sheet.cell(maxRow,4).value = right_average
-        sheet.cell(maxRow,5).value = right_face_count*100/frame
-        sheet.cell(maxRow,6).value = frame/video_len_sec
+        sheet.cell(maxRow,4).value = left_smile_count*100/frame
+        sheet.cell(maxRow,5).value = right_average
+        sheet.cell(maxRow,6).value = right_face_count*100/frame
+        sheet.cell(maxRow,7).value = right_smile_count*100/frame
+        sheet.cell(maxRow,8).value = video_len_sec
+        sheet.cell(maxRow,9).value = frame/video_len_sec
+        sheet.cell(maxRow,10).value = video_fps
         book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 
         # 以下確認用コード
         print("left:" + str(left_average))
+        print("左の顔認識率:" + str(left_face_count/frame))
+        print("左の笑顔認識率:" + str(left_smile_count/frame))
         print("right:" + str(right_average))
+        print("右の顔認識率:" + str(right_face_count/frame))
+        print("右の笑顔認識率:" + str(right_smile_count/frame))
         print("分析した枚数:" + str(frame))
         print("動画秒数:" + str(video_len_sec))
-        print("フレームレート（正式）:" + str(video_fps))
         print("フレームレート（分析した）:" + str(frame/video_len_sec))
-        print("左の顔認識率:" + str(left_face_count/frame))
-        print("右の顔認識率:" + str(right_face_count/frame))
-
+        print("フレームレート（正式）:" + str(video_fps))
         break
 
 capture.release()
