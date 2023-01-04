@@ -23,11 +23,11 @@ def SCT(bbox):
     return img
 
 while True:
-    # 開始時間
+  
+    # fps計測用：開始時間
     start = time.time()
 
-    # [TO DO]ウィンドウサイズを抽出して絶対値で指定する ※上のタブも入らないように！！！
-    # この数値はpc2においてピン止めして右モニターの右端に寄せる
+    # pc2においてピン止めして右モニターの右端に寄せる
     # (Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
     original_sct = SCT((980, 110, 1600, 460))
     original = np.asarray(original_sct)
@@ -36,10 +36,10 @@ while True:
 
     cv2.imshow('img', original)
 
-    # 終了時間
+    # fps計測用：終了時間
     end = time.time()
 
-    # Time elapsed
+    # fps計測用：経過時間
     seconds = end - start
     print("経過時間: {0} seconds".format(seconds))
 

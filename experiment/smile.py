@@ -9,12 +9,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 try:
-    # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     import torch    # Install PyTorch first: https://pytorch.org/get-started/locally/
     from img_utils_pytorch import (
         mls_rigid_deformation as mls_rigid_deformation_pt,
     )
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else 'cpu')
     device = torch.device('cpu')
 except ImportError as e:
     print(e)
@@ -41,17 +39,16 @@ def SCT(bbox):
     return img
 
 while True:
-    # 開始時間
+
+    # fps計測用：開始時間
     start = time.time()
 
-    # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する ※上のタブも入らないように！！！
-    # この数値はpc1においてピン止めして被験者を右に寄せたウィンドウを右のモニターの右上端に寄せる
+    # pc1においてピン止めして被験者を右に寄せたウィンドウを右のモニターの右上端に寄せる
     # (Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
     original = SCT((980, 110, 1600, 460))
     original = cv2.resize(original, (int(original.shape[1]*0.7), int(original.shape[0]*0.7)))
     image = torch.from_numpy(original).to(device)
 
-    # [TO DO?]指定したらコメントアウト
     height, width, _ = image.shape
 
     # detect faces
@@ -76,12 +73,10 @@ while True:
         p_array = [landmark[48], landmark[49], landmark[50], landmark[51], landmark[52], landmark[53], 
             landmark[54], landmark[55], landmark[56], landmark[57], landmark[58], landmark[59]]
         
-        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
         p_array_append = p_array.append
         for m in range(math.ceil(height/100)):
             p_array_append([width, m * 100])
 
-        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
         for n in range(math.ceil(width/100)):
             p_array_append([n * 100, height])
 
@@ -100,12 +95,10 @@ while True:
                 
         q_array = [a, b, c, d, e, f, g, h, i, j, k, l]
 
-        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
         q_array_append = q_array.append
         for m in range(math.ceil(height/100)):
             q_array_append([width, m * 100])
 
-        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
         for n in range(math.ceil(width/100)):
             q_array_append([n * 100, height])
 
@@ -113,7 +106,6 @@ while True:
         q1 = torch.from_numpy(np.array(q_array)).to(device)
 
         # Define deformation grid
-        # [TO DO?]ウィンドウサイズを抽出して絶対値で指定する
         gridX = torch.arange(width, dtype=torch.int16).to(device)
         gridY = torch.arange(height, dtype=torch.int16).to(device)
         vy, vx = torch.meshgrid(gridX, gridY)
@@ -128,10 +120,10 @@ while True:
     cv2.imshow('img', aug1)
     cv2.imshow("original", original)
 
-    # 終了時間
+    # fps計測用：終了時間
     end = time.time()
 
-    # Time elapsed
+    # fps計測用：経過時間
     seconds = end - start
     print("経過時間: {0} seconds".format(seconds))
 
