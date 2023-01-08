@@ -8,10 +8,10 @@ import openpyxl
 book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 sheet = book["result2"]
 
-name = "7-8"
+name = "hina"
 
-capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
-# capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\yobi\\%s.mp4" % name)
+# capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
+capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\yobi\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)#180 240  360 405
 
@@ -65,7 +65,7 @@ while capture.isOpened():
                         roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
                 # cv2.imshow("roi_gray12",roi_gray)  #確認のため輝度を正規化した画像を表示
 
-                smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=1, minSize=(20, 20))#笑顔識別
+                smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=0, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
                     left_smile_count += 1
                     # サイズを考慮した笑顔認識
@@ -102,7 +102,7 @@ while capture.isOpened():
                         roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
                 # cv2.imshow("roi_gray2",roi_gray)  #確認のため輝度を正規化した画像を表示
 
-                smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=1, minSize=(20, 20))#笑顔識別
+                smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=0, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
                     right_smile_count += 1
                     # サイズを考慮した笑顔認識
@@ -157,4 +157,3 @@ while capture.isOpened():
 
 capture.release()
 cv2.destroyAllWindows()
-print("Exit")    
