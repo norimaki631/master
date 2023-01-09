@@ -8,7 +8,7 @@ import openpyxl
 book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 sheet = book["result2"]
 
-name = "3-4"
+name = "48-47"
 
 capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
 # capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\yobi\\%s.mp4" % name)
@@ -168,17 +168,4 @@ while capture.isOpened():
 capture.release()
 cv2.destroyAllWindows()
 
-# 片方がない時用
-print("左の人の笑顔度合:" + str(left_average))
-print("左の人の顔認識率:" + str(left_face_count*100/frame))
-print("左の人の笑顔認識率:" + str(left_smile_count*100/frame))
-print("左の人の笑顔認識率が1を超えた割合:" + str(left_burst/left_smile_count))
-print("左の正規化輝度平均:" + str(left_roi/(frame*10000)))
-print("右の人の笑顔度合い:" + str(right_average))
-print("右の人の顔認識率:" + str(right_face_count*100/frame))
-print("右の人の笑顔認識率:" + str(right_smile_count*100/frame))
-print("右の人の笑顔認識率が1を超えた割合:" + str(right_burst/right_smile_count))
-print("右の正規化輝度平均:" + str(right_roi/(frame*10000)))
-print("動画秒数:" + str(video_len_sec))
-print("fps(計算):" + str(frame/video_len_sec))
-print("fps(正式):" + str(video_fps))
+
