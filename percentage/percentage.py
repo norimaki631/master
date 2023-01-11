@@ -5,13 +5,14 @@ import numpy as np
 import openpyxl
 
 # PC3の場合
-book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
+# book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
+book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
 sheet = book["test2"]
 
 name = "zhang"
 
 # capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
-capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\yobi\\%s.mp4" % name)
+capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\yobi\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)# 180 240  360 405
 
@@ -140,7 +141,7 @@ while capture.isOpened():
             sheet.cell(maxRow,1).value = name
             sheet.cell(maxRow,2).value = left_average
             sheet.cell(maxRow,3).value = right_average
-            book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
+            book.save("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
             break
         
         frame += 1
@@ -161,7 +162,8 @@ while capture.isOpened():
         sheet.cell(maxRow,12).value = video_len_sec # 動画秒数
         sheet.cell(maxRow,13).value = frame/video_len_sec # fps(計算)
         sheet.cell(maxRow,14).value = video_fps # fps(正式)
-        book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
+        # book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
+        book.save("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
 
         break
 

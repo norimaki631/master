@@ -5,13 +5,13 @@ import numpy as np
 import openpyxl
 
 # PC3の場合
-book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
-sheet = book["76-75"]
+book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
+sheet = book["zhang"]
 
-name = "76-75"
+name = "zhang"
 
-capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
-# capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\yobi\\%s.mp4" % name)
+# capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\hon\\mkv\\%s.mkv" % name)
+capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\yobi\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)# 180 240  360 405
 
@@ -105,7 +105,7 @@ while capture.isOpened():
         cv2.imshow('img',img)
 
     else:
-        book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
+        book.save("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
         break
 
 capture.release()
