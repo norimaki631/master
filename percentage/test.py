@@ -5,14 +5,14 @@ import numpy as np
 import openpyxl
 
 # PC3の場合
-# book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
-book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
-sheet = book["test3"]
+book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
+# book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
+sheet = book["result3"]
 
-name = "12-11"
+name = "hina"
 
-capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\hon\\mkv\\%s.mkv" % name)
-# capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\yobi\\%s.mp4" % name)
+# capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
+capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\yobi\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)# 180 240  360 405
 
@@ -36,6 +36,12 @@ left_smile_count = 0
 right_smile_count = 0
 # left_roi = 0
 # right_roi = 0
+# left_array = np.array([])
+# right_array = np.array([])
+left_num = 0
+right_num = 0
+
+maxRow = sheet.max_row + 1
 
 while capture.isOpened():
     ret, img = capture.read()
@@ -80,11 +86,16 @@ while capture.isOpened():
                     # サイズを考慮した笑顔認識
                     smile_neighbors = len(smiles)
                     # print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
+                    # left_array = np.append(left_array, smile_neighbors)
+                    sheet.cell(maxRow,left_smile_count+9).value = smile_neighbors
                     left_sum += smile_neighbors
-                    left_average = left_sum / i
-                    i += 1
+                    left_average = left_sum / left_smile_count
+                    # i += 1
                     for(sx,sy,sw,sh) in smiles:
                         cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-smile_neighbors), 0, 255*smile_neighbors),2)#red
+                else:
+                    # left_array = np.append(left_array, 0)
+                    sheet.cell(maxRow,left_smile_count+9).value = 0
                         
             # 右の人の顔の計算
             else:
@@ -113,11 +124,16 @@ while capture.isOpened():
                     # サイズを考慮した笑顔認識
                     smile_neighbors = len(smiles)
                     # print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
+                    # right_array = np.append(right_array, smile_neighbors)
+                    sheet.cell(maxRow+1,right_smile_count+9).value = smile_neighbors
                     right_sum += smile_neighbors
-                    right_average = right_sum / j
-                    j += 1
+                    right_average = right_sum / right_smile_count
+                    # j += 1
                     for(sx,sy,sw,sh) in smiles:
                         cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-smile_neighbors), 0, 255*smile_neighbors),2)#red                
+                else:
+                    # right_array = np.append(right_array, 0)
+                    sheet.cell(maxRow+1,right_smile_count+9).value = 0
 
         cv2.imshow('img',img)
 
@@ -137,7 +153,6 @@ while capture.isOpened():
         frame += 1
 
     else:
-        maxRow = sheet.max_row + 1
         sheet.cell(maxRow,1).value = name # ファイル名
         sheet.cell(maxRow,2).value = video_len_sec # 動画秒数
         sheet.cell(maxRow,3).value = frame/video_len_sec # fps(計算)
@@ -150,6 +165,10 @@ while capture.isOpened():
         sheet.cell(maxRow+1,6).value = right_face_count*100/frame # 顔認識率(右)
         sheet.cell(maxRow+1,7).value = right_smile_count*100/frame  # 笑顔認識率(右)
         # sheet.cell(maxRow+1,8).value = right_roi/(frame*10000) # 標準化輝度平均(右)
+        # while left_num < left_face_count:
+        #     sheet.cell(maxRow,left_num+9).value = left_array[left_num]
+        # while right_num < right_face_count:
+        #     sheet.cell(maxRow+1,right_num+9).value = left_array[right_num]
 
         # book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
         book.save("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
