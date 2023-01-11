@@ -7,7 +7,7 @@ import openpyxl
 # PC3の場合
 # book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
-sheet = book["test2"]
+sheet = book["test3"]
 
 name = "hina"
 
@@ -56,19 +56,35 @@ while capture.isOpened():
 
                 #サイズを縮小
                 roi_gray = cv2.resize(roi_gray,(100,100))
-                #cv2.imshow("roi_gray",roi_gray) #確認のためサイズ統一させた画像を表示
+                cv2.imshow("roi_gray1",roi_gray) #確認のためサイズ統一させた画像を表示
 
-                # 輝度で規格化
+                # 輝度を規格化
                 lmin = roi_gray.min() #輝度の最小値
                 lmax = roi_gray.max() #輝度の最大値
+                llist = np.ravel(roi_gray)
+
+                # print(roi_gray)
                 # print("lmax:" + str(lmax))
                 # print("lmin:" + str(lmin))
-                for index1, item1 in enumerate(roi_gray):
-                    for index2, item2 in enumerate(item1) :
-                        roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
-                        left_roi += float((item2 - lmin)/(lmax-lmin))
+
+                # print("llistmax:" + str(llist.max()))
+                # print("llistmin:" + str(llist.min()))
+                # for index1, item1 in enumerate(roi_gray):
+                #     for index2, item2 in enumerate(item1) :
+                #         roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
+                #         left_roi += float((item2 - lmin)/(lmax-lmin))
                         # print(left_roi)
                 # cv2.imshow("roi_gray12",roi_gray)  #確認のため輝度を正規化した画像を表示
+
+                # 輝度を標準化
+                lmean = np.mean(llist)
+                lstd = np.std(llist)
+
+                for index1, item1 in enumerate(roi_gray):
+                    for index2, item2 in enumerate(item1) :
+                        roi_gray[index1][index2] = int((item2 - lmean)/lstd * 40 + 128)
+                        # left_roi += float(scipy.stats.zscore(roi_gray)[index1][index2])
+                cv2.imshow("roi_gray1_hyoujunka",roi_gray)
 
                 smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=0, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
@@ -93,17 +109,27 @@ while capture.isOpened():
 
                 #サイズを縮小
                 roi_gray = cv2.resize(roi_gray,(100,100))
-                #cv2.imshow("roi_gray",roi_gray) #確認のためサイズ統一させた画像を表示
+                cv2.imshow("roi_gray2",roi_gray) #確認のためサイズ統一させた画像を表示
 
                 # 輝度で規格化
-                lmin = roi_gray.min() #輝度の最小値
-                lmax = roi_gray.max() #輝度の最大値
-                for index1, item1 in enumerate(roi_gray):
-                    for index2, item2 in enumerate(item1) :
-                        roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
-                        right_roi += float((item2 - lmin)/(lmax-lmin))
+                # lmin = roi_gray.min() #輝度の最小値
+                # lmax = roi_gray.max() #輝度の最大値
+                # for index1, item1 in enumerate(roi_gray):
+                #     for index2, item2 in enumerate(item1) :
+                #         roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
+                #         right_roi += float((item2 - lmin)/(lmax-lmin))
                         # print(right_roi)
                 # cv2.imshow("roi_gray2",roi_gray)  #確認のため輝度を正規化した画像を表示
+
+                llist = np.ravel(roi_gray)
+                lmean = np.mean(llist)
+                lstd = np.std(llist)
+
+                for index1, item1 in enumerate(roi_gray):
+                    for index2, item2 in enumerate(item1) :
+                        roi_gray[index1][index2] = int((item2 - lmean)/lstd * 40 + 128)
+                        # left_roi += float(scipy.stats.zscore(roi_gray)[index1][index2])
+                cv2.imshow("roi_gray2_hyoujunka",roi_gray)
 
                 smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=0, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
@@ -139,17 +165,18 @@ while capture.isOpened():
     else:
         maxRow = sheet.max_row + 1
         sheet.cell(maxRow,1).value = name # ファイル名
-        sheet.cell(maxRow,2).value = left_average # 左の人の笑顔度合
-        sheet.cell(maxRow,3).value = left_face_count*100/frame # 左の人の顔認識率
-        sheet.cell(maxRow,4).value = left_smile_count*100/frame # 左の人の笑顔認識率
-        sheet.cell(maxRow,6).value = left_roi/(frame*10000) # 左の正規化輝度平均
-        sheet.cell(maxRow,7).value = right_average # 右の人の笑顔度合い
-        sheet.cell(maxRow,8).value = right_face_count*100/frame # 右の人の顔認識率
-        sheet.cell(maxRow,9).value = right_smile_count*100/frame  # 右の人の笑顔認識率
-        sheet.cell(maxRow,11).value = right_roi/(frame*10000) # 右の正規化輝度平均
-        sheet.cell(maxRow,12).value = video_len_sec # 動画秒数
-        sheet.cell(maxRow,13).value = frame/video_len_sec # fps(計算)
-        sheet.cell(maxRow,14).value = video_fps # fps(正式)
+        sheet.cell(maxRow,2).value = video_len_sec # 動画秒数
+        sheet.cell(maxRow,3).value = frame/video_len_sec # fps(計算)
+        sheet.cell(maxRow,4).value = video_fps # fps(正式)
+        sheet.cell(maxRow,5).value = left_average # 生数字平均(左)
+        sheet.cell(maxRow,6).value = left_face_count*100/frame # 顔認識率(左)
+        sheet.cell(maxRow,7).value = left_smile_count*100/frame # 笑顔認識率(左)
+        sheet.cell(maxRow,8).value = left_roi/(frame*10000) # 標準化輝度平均(左)
+        sheet.cell(maxRow+1,5).value = right_average # 生数字平均(右)
+        sheet.cell(maxRow+1,6).value = right_face_count*100/frame # 顔認識率(右)
+        sheet.cell(maxRow+1,7).value = right_smile_count*100/frame  # 笑顔認識率(右)
+        sheet.cell(maxRow+1,8).value = right_roi/(frame*10000) # 標準化輝度平均(右)
+
         # book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
         book.save("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
 
