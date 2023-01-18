@@ -5,13 +5,13 @@ import numpy as np
 import openpyxl
 
 # PC3の場合
-# book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
+# book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
-sheet = book["test3"]
+sheet = book["test2"]
 
-name = "hina"
+name = "zhang"
 
-# capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\hon\\mkv\\%s.mkv" % name)
+# capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
 capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\yobi\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)# 180 240  360 405
@@ -23,6 +23,8 @@ video_len_sec = video_frame_count / video_fps         # 長さ（秒）を計算
 face_cascade = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 smile_cascade = cv2.CascadeClassifier('./haarcascade_smile.xml')
 
+i = 1
+j = 1
 left_sum = 0
 left_average = 0
 right_sum = 0
@@ -32,14 +34,10 @@ left_face_count = 0
 right_face_count = 0
 left_smile_count = 0
 right_smile_count = 0
-# left_roi = 0
-# right_roi = 0
-# left_array = np.array([])
-# right_array = np.array([])
-left_num = 0
-right_num = 0
-
-maxRow = sheet.max_row + 1
+left_burst = 0
+right_burst = 0
+left_roi = 0
+right_roi = 0
 
 while capture.isOpened():
     ret, img = capture.read()
@@ -60,23 +58,19 @@ while capture.isOpened():
 
                 #サイズを縮小
                 roi_gray = cv2.resize(roi_gray,(100,100))
-                cv2.imshow("roi_gray1",roi_gray) #確認のためサイズ統一させた画像を表示
+                #cv2.imshow("roi_gray",roi_gray) #確認のためサイズ統一させた画像を表示
 
-                # 輝度を規格化
+                # 輝度で規格化
                 lmin = roi_gray.min() #輝度の最小値
                 lmax = roi_gray.max() #輝度の最大値
-                llist = np.ravel(roi_gray)
-
-                # 輝度を標準化
-                lmean = np.mean(llist)
-                lstd = np.std(llist)
-
+                # print("lmax:" + str(lmax))
+                # print("lmin:" + str(lmin))
                 for index1, item1 in enumerate(roi_gray):
                     for index2, item2 in enumerate(item1) :
-                        roi_gray[index1][index2] = int((item2 - lmean)/lstd * 37 + 128)
-                #         left_roi += float((item2 - lmean)/lstd)
-                # print(left_roi/10000)
-                cv2.imshow("roi_gray1_hyoujunka",roi_gray)
+                        roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
+                        left_roi += float((item2 - lmin)/(lmax-lmin))
+                        # print(left_roi)
+                # cv2.imshow("roi_gray12",roi_gray)  #確認のため輝度を正規化した画像を表示
 
                 smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=0, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
@@ -84,16 +78,17 @@ while capture.isOpened():
                     # サイズを考慮した笑顔認識
                     smile_neighbors = len(smiles)
                     # print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
-                    # left_array = np.append(left_array, smile_neighbors)
-                    sheet.cell(maxRow,left_face_count+9).value = smile_neighbors
-                    left_sum += smile_neighbors
-                    left_average = left_sum / left_smile_count
-                    # i += 1
+                    LV = 2/150
+                    left_intensityZeroOne = smile_neighbors  * LV 
+                    if left_intensityZeroOne > 1.0: 
+                        left_intensityZeroOne = 1.0
+                        left_burst += 1
+                    # print(intensityZeroOne) #確認のため強度を出力
+                    left_sum += left_intensityZeroOne
+                    left_average = left_sum / i
+                    i += 1
                     for(sx,sy,sw,sh) in smiles:
-                        cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-smile_neighbors), 0, 255*smile_neighbors),2)#red
-                else:
-                    # left_array = np.append(left_array, 0)
-                    sheet.cell(maxRow,left_face_count+9).value = 0
+                        cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-left_intensityZeroOne), 0, 255*left_intensityZeroOne),2)#red
                         
             # 右の人の顔の計算
             else:
@@ -104,17 +99,17 @@ while capture.isOpened():
 
                 #サイズを縮小
                 roi_gray = cv2.resize(roi_gray,(100,100))
-                cv2.imshow("roi_gray2",roi_gray) #確認のためサイズ統一させた画像を表示
+                #cv2.imshow("roi_gray",roi_gray) #確認のためサイズ統一させた画像を表示
 
-                llist = np.ravel(roi_gray)
-                lmean = np.mean(llist)
-                lstd = np.std(llist)
-
+                # 輝度で規格化
+                lmin = roi_gray.min() #輝度の最小値
+                lmax = roi_gray.max() #輝度の最大値
                 for index1, item1 in enumerate(roi_gray):
                     for index2, item2 in enumerate(item1) :
-                        roi_gray[index1][index2] = int((item2 - lmean)/lstd * 37 + 128)
-                        # right_roi += float((item2 - lmean)/lstd)
-                cv2.imshow("roi_gray2_hyoujunka",roi_gray)
+                        roi_gray[index1][index2] = int((item2 - lmin)/(lmax-lmin) * item2)
+                        right_roi += float((item2 - lmin)/(lmax-lmin))
+                        # print(right_roi)
+                # cv2.imshow("roi_gray2",roi_gray)  #確認のため輝度を正規化した画像を表示
 
                 smiles= smile_cascade.detectMultiScale(roi_gray,scaleFactor= 1.2, minNeighbors=0, minSize=(20, 20))#笑顔識別
                 if len(smiles) >0 : # 笑顔領域がなければ以下の処理を飛ばす．#if len(smiles) <=0 : continue でもよい．その場合以下はインデント不要
@@ -122,16 +117,17 @@ while capture.isOpened():
                     # サイズを考慮した笑顔認識
                     smile_neighbors = len(smiles)
                     # print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
-                    # right_array = np.append(right_array, smile_neighbors)
-                    sheet.cell(maxRow+1,right_face_count+9).value = smile_neighbors
-                    right_sum += smile_neighbors
-                    right_average = right_sum / right_smile_count
-                    # j += 1
+                    LV = 2/150
+                    right_intensityZeroOne = smile_neighbors  * LV 
+                    if right_intensityZeroOne > 1.0: 
+                        right_intensityZeroOne = 1.0
+                        right_burst += 1 
+                    # print(intensityZeroOne) #確認のため強度を出力
+                    right_sum += right_intensityZeroOne
+                    right_average = right_sum / j
+                    j += 1
                     for(sx,sy,sw,sh) in smiles:
-                        cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-smile_neighbors), 0, 255*smile_neighbors),2)#red                
-                else:
-                    # right_array = np.append(right_array, 0)
-                    sheet.cell(maxRow+1,right_face_count+9).value = 0
+                        cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-right_intensityZeroOne), 0, 255*right_intensityZeroOne),2)#red                
 
         cv2.imshow('img',img)
 
@@ -151,25 +147,23 @@ while capture.isOpened():
         frame += 1
 
     else:
+        maxRow = sheet.max_row + 1
         sheet.cell(maxRow,1).value = name # ファイル名
-        sheet.cell(maxRow,2).value = video_len_sec # 動画秒数
-        sheet.cell(maxRow,3).value = frame/video_len_sec # fps(計算)
-        sheet.cell(maxRow,4).value = video_fps # fps(正式)
-        sheet.cell(maxRow,5).value = left_average # 生数字平均(左)
-        sheet.cell(maxRow,6).value = left_face_count*100/frame # 顔認識率(左)
-        sheet.cell(maxRow,7).value = left_smile_count*100/frame # 笑顔認識率(左)
-        sheet.cell(maxRow+1,5).value = right_average # 生数字平均(右)
-        sheet.cell(maxRow+1,6).value = right_face_count*100/frame # 顔認識率(右)
-        sheet.cell(maxRow+1,7).value = right_smile_count*100/frame  # 笑顔認識率(右)
-        # while left_num < left_face_count:
-        #     sheet.cell(maxRow,left_num+9).value = left_array[left_num]
-        # while right_num < right_face_count:
-        #     sheet.cell(maxRow+1,right_num+9).value = left_array[right_num]
-
+        sheet.cell(maxRow,2).value = left_average # 左の人の笑顔度合
+        sheet.cell(maxRow,3).value = left_face_count*100/frame # 左の人の顔認識率
+        sheet.cell(maxRow,4).value = left_smile_count*100/frame # 左の人の笑顔認識率
+        sheet.cell(maxRow,5).value = left_burst/left_smile_count # 左の人の笑顔認識率が1を超えた割合
+        sheet.cell(maxRow,6).value = left_roi/(frame*10000) # 左の正規化輝度平均
+        sheet.cell(maxRow,7).value = right_average # 右の人の笑顔度合い
+        sheet.cell(maxRow,8).value = right_face_count*100/frame # 右の人の顔認識率
+        sheet.cell(maxRow,9).value = right_smile_count*100/frame  # 右の人の笑顔認識率
+        sheet.cell(maxRow,10).value = right_burst/right_smile_count # 右の人の笑顔認識率が1を超えた割合
+        sheet.cell(maxRow,11).value = right_roi/(frame*10000) # 右の正規化輝度平均
+        sheet.cell(maxRow,12).value = video_len_sec # 動画秒数
+        sheet.cell(maxRow,13).value = frame/video_len_sec # fps(計算)
+        sheet.cell(maxRow,14).value = video_fps # fps(正式)
         # book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
         book.save("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
-        # print(left_face_count)
-        # print(right_face_count)
 
         break
 
