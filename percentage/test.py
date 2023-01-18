@@ -5,13 +5,13 @@ import numpy as np
 import openpyxl
 
 # PC3の場合
-book = openpyxl.load_workbook("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
 # book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
-sheet = book["result3"]
+book = openpyxl.load_workbook("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
+sheet = book["test3"]
 
 name = "hina"
 
-# capture = cv2.VideoCapture("C:\\Users\\Misaki Sato\\Desktop\\recording\\hon\\mkv\\%s.mkv" % name)
+# capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\hon\\mkv\\%s.mkv" % name)
 capture = cv2.VideoCapture("D:\\Misaki Sato\\master\\recording\\yobi\\%s.mp4" % name)
 capture.set(3,640)# 320 320 640 720
 capture.set(4,480)# 180 240  360 405
@@ -23,8 +23,6 @@ video_len_sec = video_frame_count / video_fps         # 長さ（秒）を計算
 face_cascade = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 smile_cascade = cv2.CascadeClassifier('./haarcascade_smile.xml')
 
-i = 1
-j = 1
 left_sum = 0
 left_average = 0
 right_sum = 0
@@ -87,7 +85,7 @@ while capture.isOpened():
                     smile_neighbors = len(smiles)
                     # print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
                     # left_array = np.append(left_array, smile_neighbors)
-                    sheet.cell(maxRow,left_smile_count+9).value = smile_neighbors
+                    sheet.cell(maxRow,left_face_count+9).value = smile_neighbors
                     left_sum += smile_neighbors
                     left_average = left_sum / left_smile_count
                     # i += 1
@@ -95,7 +93,7 @@ while capture.isOpened():
                         cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-smile_neighbors), 0, 255*smile_neighbors),2)#red
                 else:
                     # left_array = np.append(left_array, 0)
-                    sheet.cell(maxRow,left_smile_count+9).value = 0
+                    sheet.cell(maxRow,left_face_count+9).value = 0
                         
             # 右の人の顔の計算
             else:
@@ -125,7 +123,7 @@ while capture.isOpened():
                     smile_neighbors = len(smiles)
                     # print("smile_neighbors=",smile_neighbors) #確認のため認識した近傍矩形数を出力
                     # right_array = np.append(right_array, smile_neighbors)
-                    sheet.cell(maxRow+1,right_smile_count+9).value = smile_neighbors
+                    sheet.cell(maxRow+1,right_face_count+9).value = smile_neighbors
                     right_sum += smile_neighbors
                     right_average = right_sum / right_smile_count
                     # j += 1
@@ -133,7 +131,7 @@ while capture.isOpened():
                         cv2.circle(img,(int(x+(sx+sw/2)*w/100),int(y+(sy+sh/2)*h/100)),int(sw/2*w/100), (255*(1.0-smile_neighbors), 0, 255*smile_neighbors),2)#red                
                 else:
                     # right_array = np.append(right_array, 0)
-                    sheet.cell(maxRow+1,right_smile_count+9).value = 0
+                    sheet.cell(maxRow+1,right_face_count+9).value = 0
 
         cv2.imshow('img',img)
 
@@ -160,11 +158,9 @@ while capture.isOpened():
         sheet.cell(maxRow,5).value = left_average # 生数字平均(左)
         sheet.cell(maxRow,6).value = left_face_count*100/frame # 顔認識率(左)
         sheet.cell(maxRow,7).value = left_smile_count*100/frame # 笑顔認識率(左)
-        # sheet.cell(maxRow,8).value = left_roi/(frame*10000) # 標準化輝度平均(左)
         sheet.cell(maxRow+1,5).value = right_average # 生数字平均(右)
         sheet.cell(maxRow+1,6).value = right_face_count*100/frame # 顔認識率(右)
         sheet.cell(maxRow+1,7).value = right_smile_count*100/frame  # 笑顔認識率(右)
-        # sheet.cell(maxRow+1,8).value = right_roi/(frame*10000) # 標準化輝度平均(右)
         # while left_num < left_face_count:
         #     sheet.cell(maxRow,left_num+9).value = left_array[left_num]
         # while right_num < right_face_count:
@@ -172,6 +168,8 @@ while capture.isOpened():
 
         # book.save("C:\\Users\\Misaki Sato\\Desktop\\result\\smile_percentage.xlsx")
         book.save("D:\\Misaki Sato\\master\\result\\smile_percentage.xlsx")
+        # print(left_face_count)
+        # print(right_face_count)
 
         break
 
